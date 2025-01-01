@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from './firebaseConfig';
+import { toast } from "react-toastify";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function Register() {
@@ -23,25 +24,21 @@ export default function Register() {
 
     const onSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (formData.password !== formData.confirmPassword) {
             alert('Passwords do not match!');
             return;
         }
 
-        try {
-            const userCredential = await createUserWithEmailAndPassword(
-                auth,
-                formData.email,
-                formData.password
-            );
-
-            console.log("User registered:", userCredential.user);
-            navigate('/login');
-        } catch (error) {
-            console.error('Registration error:', error);
-            alert('Registration failed. Please try again.');
-        }
+        createUserWithEmailAndPassword(auth, formData.email, formData.password)
+            .then(() => {
+                toast.success("Registration successful!");
+                close();
+                navigate('/login');
+            })
+            .catch((error) => {
+                toast.error(`Registration failed: ${error.message}`);
+            });
     };
 
     return (
